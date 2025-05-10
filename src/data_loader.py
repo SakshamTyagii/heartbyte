@@ -20,14 +20,17 @@ class MIMICDataLoader:
         
     def load_data(self):
         """Load all required MIMIC-III tables"""
-        try:            # Load the CSV files with human-readable names
+        try:            
+            # Load the CSV files with human-readable names
             self.admissions = pd.read_csv(self.data_dir / 'hospital_admissions.csv')
             self.patients = pd.read_csv(self.data_dir / 'patient_records.csv')
             self.diagnoses = pd.read_csv(self.data_dir / 'diagnosis_codes.csv')
+            self.procedures = pd.read_csv(self.data_dir / 'procedure_records.csv')
             
             print(f"Loaded {len(self.admissions)} admissions")
             print(f"Loaded {len(self.patients)} patients")
             print(f"Loaded {len(self.diagnoses)} diagnoses")
+            print(f"Loaded {len(self.procedures)} procedures")
             
             return True
         except FileNotFoundError as e:
@@ -53,11 +56,19 @@ class MIMICDataLoader:
         hf_patients = self.patients[
             self.patients['subject_id'].isin(hf_patient_ids)
         ]
+
+        # Filter procedures for heart failure patients if procedures are available
+        hf_procedures = None
+        if hasattr(self, 'procedures'):
+            hf_procedures = self.procedures[
+                self.procedures['subject_id'].isin(hf_patient_ids)
+            ]
+            print(f"Found {len(hf_procedures)} procedures for heart failure patients")
         
         print(f"Found {len(hf_patient_ids)} patients with heart failure")
         print(f"These patients had {len(hf_admissions)} admissions")
         
-        return hf_patients, hf_admissions, hf_diagnoses
+        return hf_patients, hf_admissions, hf_diagnoses, hf_procedures
 
     def explore_data(self):
         """Print basic statistics about the dataset"""
@@ -78,3 +89,8 @@ class MIMICDataLoader:
         print("\nDiagnoses Data:")
         print(f"Total diagnoses: {len(self.diagnoses)}")
         print("\nSample diagnoses columns:", self.diagnoses.columns.tolist())
+        
+        # Procedures statistics
+        print("\nProcedures Data:")
+        print(f"Total procedures: {len(self.procedures)}")
+        print("\nSample procedures columns:", self.procedures.columns.tolist())
