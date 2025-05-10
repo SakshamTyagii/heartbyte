@@ -322,7 +322,17 @@ def explain_model_with_shap(
         plt.tight_layout()
         plt.show()
     elif plot_type == 'beeswarm':
-        shap.plots.beeswarm(shap.Explanation(values=shap_values, 
+        # Handle multi-dimensional SHAP values
+        if isinstance(shap_values, list) or (isinstance(shap_values, np.ndarray) and len(shap_values.shape) > 2):
+            # For binary classification, we typically want class 1 (positive class)
+            if len(shap_values) == 2:
+                values_to_plot = shap_values[1]
+            else:
+                values_to_plot = shap_values[0]
+        else:
+            values_to_plot = shap_values
+        
+        shap.plots.beeswarm(shap.Explanation(values=values_to_plot, 
                                              data=X_sample,
                                              feature_names=X_sample.columns))
     elif plot_type == 'waterfall':
