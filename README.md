@@ -12,6 +12,15 @@ This project analyzes patterns in 30-day readmissions for heart failure patients
 - 30-day readmission rate: 9.75%
 - Total readmissions within 30 days: 1,634
 
+### Data Preprocessing Pipeline
+The project includes a robust preprocessing pipeline (`src/data_processing.py`) that handles:
+- Table merging (patients, admissions, diagnoses, procedures)
+- Missing value imputation (mean for numerical, mode for categorical)
+- Feature encoding (one-hot encoding for categorical variables)
+- Feature normalization (StandardScaler for numerical features)
+- Readmission target creation (30-day threshold)
+- Train/test splitting with stratification
+
 ### Key Findings
 1. Comorbidity Analysis
    - Identified top comorbidities with highest readmission rates:
@@ -37,5 +46,5 @@ This project analyzes patterns in 30-day readmissions for heart failure patients
 3. Review analysis findings in `02_data_analysis.ipynb`
 
 ## Team
-- [Saksham]: Project Lead
+-
 - Team repository: https://github.com/aaanishaaa/HeartByte
