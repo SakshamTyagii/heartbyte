@@ -50,6 +50,53 @@ def preprocess_features(features_df, numerical_features=None, categorical_featur
     
     return df
 
+def clean_features_for_modeling(df):
+    """
+    Clean features dataframe to make it suitable for ML models:
+    - Remove datetime columns
+    - Remove object/string columns (except specified categorical features)
+    - Remove non-numeric columns that can't be converted
+    - Handle missing values
+    
+    Args:
+        df (pd.DataFrame): Input features dataframe
+        
+    Returns:
+        pd.DataFrame: Cleaned feature dataframe with only numeric columns and no missing values
+    """
+    df_clean = df.copy()
+    
+    # Columns to exclude (these can be either dropped or specially handled)
+    datetime_cols = []
+    object_cols = []
+    other_cols = []
+    
+    # Identify problematic columns
+    for col in df_clean.columns:
+        if pd.api.types.is_datetime64_any_dtype(df_clean[col]):
+            datetime_cols.append(col)
+        elif pd.api.types.is_object_dtype(df_clean[col]):
+            object_cols.append(col)
+        elif not pd.api.types.is_numeric_dtype(df_clean[col]):
+            other_cols.append(col)
+    
+    # Remove problematic columns
+    for col_list in [datetime_cols, object_cols, other_cols]:
+        if col_list:
+            df_clean = df_clean.drop(columns=col_list)
+    
+    # Handle missing values for all remaining numeric columns
+    numeric_cols = df_clean.columns.tolist()
+    df_clean = df_clean.fillna(df_clean.mean())
+    
+    # Check if there are still NaNs (in case of columns with all NaNs)
+    cols_with_nan = df_clean.columns[df_clean.isna().any()].tolist()
+    if cols_with_nan:
+        print(f"Warning: Dropping columns with all NaN values: {cols_with_nan}")
+        df_clean = df_clean.drop(columns=cols_with_nan)
+    
+    return df_clean
+
 def prepare_model_data(features_df, target_col='is_readmission', test_size=0.2, random_state=42):
     """
     Prepare data for modeling by preprocessing features and splitting into train/test sets.
@@ -63,9 +110,31 @@ def prepare_model_data(features_df, target_col='is_readmission', test_size=0.2, 
     Returns:
         tuple: (X_train, X_test, y_train, y_test)
     """
+    # Make a copy to avoid modifying the original
+    df = features_df.copy()
+    
+    # Clean features first to remove problematic columns
+    df = clean_features_for_modeling(df)
+    
+    # Extract target before preprocessing
+    y = df[target_col]
+    
+    # Remove target from features
+    X_df = df.drop(columns=[target_col])
+    
     # Preprocess features
-    X = preprocess_features(features_df)
-    y = features_df[target_col]
+    X = preprocess_features(X_df)
+    
+    # Double-check for any remaining NaN values (safety measure)
+    if X.isna().any().any():
+        print("Warning: NaN values detected after preprocessing, filling with column means")
+        X = X.fillna(X.mean())
+        
+        # Check for columns with all NaNs (which can't be imputed with mean)
+        cols_all_nan = X.columns[X.isna().any()].tolist()
+        if cols_all_nan:
+            print(f"Warning: Dropping columns with all NaN values: {cols_all_nan}")
+            X = X.drop(columns=cols_all_nan)
     
     # Split data
     X_train, X_test, y_train, y_test = train_test_split(
@@ -74,6 +143,14 @@ def prepare_model_data(features_df, target_col='is_readmission', test_size=0.2, 
         random_state=random_state,
         stratify=y
     )
+    
+    # Final check for NaNs in the split data
+    if X_train.isna().any().any() or X_test.isna().any().any():
+        print("Warning: NaN values detected after train-test split, filling with training means")
+        # Get means from training data only to prevent data leakage
+        train_means = X_train.mean()
+        X_train = X_train.fillna(train_means)
+        X_test = X_test.fillna(train_means)
     
     return X_train, X_test, y_train, y_test
 
