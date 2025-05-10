@@ -37,13 +37,35 @@ The project includes a robust preprocessing pipeline (`src/data_processing.py`) 
 - `/notebooks/`: Jupyter notebooks for data analysis
   - `01_data_exploration.ipynb`: Initial data exploration
   - `02_data_analysis.ipynb`: Detailed analysis of readmission patterns
+  - `03_model_training.ipynb`: Model training and evaluation
 - `/src/`: Source code for data loading and preprocessing
+  - `data_loader.py`: Functions to load and filter MIMIC-III data
+  - `data_processing.py`: Data preprocessing and feature engineering
+  - `modeling.py`: ML model training, evaluation and visualization
 - `/data/`: MIMIC-III heart failure patient data
+- `/models/`: Trained machine learning models
+
+## Machine Learning Models
+The project implements three different models with increasing complexity:
+1. **Logistic Regression**: Baseline model with interpretable coefficients
+2. **Random Forest**: Ensemble approach less prone to overfitting
+3. **XGBoost**: Gradient boosting framework offering top performance
+
+Each model is evaluated using metrics appropriate for imbalanced classification:
+- Precision, Recall, F1 Score
+- ROC-AUC and Confusion Matrix
+- Feature importance analysis
 
 ## Getting Started
-1. Set up Python environment with required dependencies
-2. Run notebooks in sequence
-3. Review analysis findings in `02_data_analysis.ipynb`
+1. Set up Python environment with required dependencies:
+   ```
+   pip install -r requirements.txt
+   ```
+2. Run notebooks in sequence:
+   - Start with data exploration (01_data_exploration.ipynb)
+   - Continue with feature analysis (02_data_analysis.ipynb)
+   - Train and evaluate models (03_model_training.ipynb)
+3. Review model performance and insights
 
 ## Team
 -
