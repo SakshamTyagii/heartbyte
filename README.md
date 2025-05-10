@@ -56,6 +56,15 @@ Each model is evaluated using metrics appropriate for imbalanced classification:
 - ROC-AUC and Confusion Matrix
 - Feature importance analysis
 
+### Model Interpretation
+The project uses SHAP (SHapley Additive exPlanations) to interpret model predictions:
+- **SHAP Summary Plots**: Visualize feature impact across the dataset
+- **Dependence Plots**: Show how specific features affect model output
+- **Waterfall Plots**: Explain individual predictions in detail
+- **Force Plots**: Illustrate contribution of each feature to a prediction
+
+This helps identify which clinical factors most strongly influence readmission risk.
+
 ## Getting Started
 1. Set up Python environment with required dependencies:
    ```
