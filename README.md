@@ -1,0 +1,2 @@
+# Heart Failure Readmission Prediction
+ML pipeline for Veersa Hackathon 2026 (Use Case 4) by [Saksham]. Predicts 30-day readmissions for heart failure patients using MIMIC-III data. Contributions will be merged into team repo: https://github.com/aaanishaaa/HeartByte.
